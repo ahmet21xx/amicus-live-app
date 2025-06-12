@@ -22,24 +22,34 @@ const iceServers = {
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
 
-        // Google'ın AppRTC için kullandığı test TURN sunucuları (Lütfen sadece TEST amaçlı kullanın!)
-        // Bu sunucular genellikle daha güvenilirdir ancak üretim için önerilmez.
-        // Bu URL'ler ve kimlik bilgileri zaman zaman değişebilir.
+        // AppRTC'nin güncel ve genellikle çalışan TURN sunucuları (Test amaçlı!)
+        // Bu sunucular Google tarafından işletilir ve resmi olarak dış kullanıma açık değildir, ancak testler için işe yarar.
+        // Unutmayın, bu IP adresleri değişebilir.
         {
-            urls: 'turn:54.145.228.163:3478?transport=tcp', // Güncel AppRTC TURN sunucusu IP'si
+            urls: 'turn:54.145.228.163:3478?transport=tcp', // Genellikle çalışan bir AppRTC TURN sunucusu IP'si (TCP)
             username: 'webrtc',
             credential: 'webrtc'
         },
         {
-            urls: 'turn:35.170.252.190:3478?transport=tcp', // Güncel AppRTC TURN sunucusu IP'si
+            urls: 'turn:35.170.252.190:3478?transport=tcp', // Başka bir AppRTC TURN sunucusu IP'si (TCP)
             username: 'webrtc',
             credential: 'webrtc'
         },
-         // Daha önce kullandığımız Metered sunucuları (Yorum satırı olarak bırakabiliriz, veya kaldırabiliriz)
+        {
+            urls: 'turn:54.145.228.163:3478?transport=udp', // Aynı sunucu UDP üzerinden
+            username: 'webrtc',
+            credential: 'webrtc'
+        },
+        {
+            urls: 'turn:35.170.252.190:3478?transport=udp', // Aynı sunucu UDP üzerinden
+            username: 'webrtc',
+            credential: 'webrtc'
+        },
+        // Alternatif (eski ama bazen işe yarayan) ücretsiz TURN sunucusu
         // {
-        //     urls: "turn:global.relay.metered.ca:443?transport=tcp",
-        //     username: "YOUR_API_KEY_HERE",
-        //     credential: "YOUR_API_SECRET_HERE"
+        //     urls: 'turn:numb.viagenie.ca',
+        //     username: 'testuser',
+        //     credential: 'testpassword'
         // }
     ],
 };
