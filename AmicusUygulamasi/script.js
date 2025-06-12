@@ -12,45 +12,38 @@ let remoteStream;
 let peerConnection;
 let socket; // Socket.IO bağlantısı için
 
-// Güncellenmiş STUN/TURN sunucuları
+// Metered.ca'dan aldığınız GÜNCEL STUN/TURN sunucuları ile düzenlenmiş blok
 const iceServers = {
     iceServers: [
-        // Google'ın genel STUN sunucuları
+        {
+            urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "ef9ec931c1b65fee4abab886",
+            credential: "fZNqNn7KmkSnb3MR",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp", // TCP transportunu açıkça belirtelim
+            username: "ef9ec931c1b65fee4abab886",
+            credential: "fZNqNn7KmkSnb3MR",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:443", // 443 portu (HTTPS için standart)
+            username: "ef9ec931c1b65fee4abab886",
+            credential: "fZNqNn7KmkSnb3MR",
+        },
+        {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp", // TURN Secure (TLS/SSL) ve TCP
+            username: "ef9ec931c1b65fee4abab886",
+            credential: "fZNqNn7KmkSnb3MR",
+        },
+        // Google'ın genel STUN sunucularını da ekleyelim, her zaman faydalıdır.
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
-
-        // AppRTC'nin güncel ve genellikle çalışan TURN sunucuları (Test amaçlı!)
-        // Bu sunucular Google tarafından işletilir ve resmi olarak dış kullanıma açık değildir, ancak testler için işe yarar.
-        // Unutmayın, bu IP adresleri değişebilir.
-        {
-            urls: 'turn:54.145.228.163:3478?transport=tcp', // Genellikle çalışan bir AppRTC TURN sunucusu IP'si (TCP)
-            username: 'webrtc',
-            credential: 'webrtc'
-        },
-        {
-            urls: 'turn:35.170.252.190:3478?transport=tcp', // Başka bir AppRTC TURN sunucusu IP'si (TCP)
-            username: 'webrtc',
-            credential: 'webrtc'
-        },
-        {
-            urls: 'turn:54.145.228.163:3478?transport=udp', // Aynı sunucu UDP üzerinden
-            username: 'webrtc',
-            credential: 'webrtc'
-        },
-        {
-            urls: 'turn:35.170.252.190:3478?transport=udp', // Aynı sunucu UDP üzerinden
-            username: 'webrtc',
-            credential: 'webrtc'
-        },
-        // Alternatif (eski ama bazen işe yarayan) ücretsiz TURN sunucusu
-        // {
-        //     urls: 'turn:numb.viagenie.ca',
-        //     username: 'testuser',
-        //     credential: 'testpassword'
-        // }
     ],
 };
 
@@ -195,6 +188,7 @@ function createPeerConnection() {
             remoteVideo.srcObject = null;
         } else if (peerConnection.connectionState === 'connected') {
             console.log('Bağlantı başarıyla kuruldu!');
+            // Bağlantı kurulduğunda video ve ses akışı başlar.
         }
     };
 }
