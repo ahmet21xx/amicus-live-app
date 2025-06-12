@@ -88,4 +88,173 @@ async function init() {
             // Eğer isInitiator false ise, biz offer'ı karşı taraftan bekleyeceğiz (aşağıdaki 'offer' olayında).
         });
 
-        // 'offer'
+        // 'offer' olayı geldiğinde teklifi işleme ve cevap oluşturma
+        socket.on('offer', async (data) => {
+            console.log('Teklif alındı:', data);
+            remotePeerId = data.from; // Karşı tarafın ID'sini kaydet
+            if (!peerConnection) { // Eğer henüz bir peerConnection yoksa oluştur
+                createPeerConnection();
+            }
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer', { to: data.from, answer: answer });
+        });
+
+        socket.on('answer', async (data) => {
+            console.log('Cevap alındı:', data);
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        });
+
+        socket.on('candidate', async (data) => {
+            console.log('ICE adayı alındı:', data); // Bu satırı etkinleştirdik
+            try {
+                // Sadece bağlantı varsa adayı ekle
+                if (peerConnection && peerConnection.remoteDescription) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
+            } catch (e) {
+                console.error('ICE adayı eklenirken hata:', e);
+            }
+        });
+
+        socket.on('userDisconnected', () => {
+            console.log('Karşı taraf bağlantıyı kesti.');
+            closePeerConnection();
+            remoteVideo.srcObject = null;
+            alert('Karşı taraf bağlantıyı kesti veya eşleşmeden ayrıldı.');
+        });
+
+        socket.on('noMatch', () => {
+            alert('Şu anda müsait bir eşleşme bulunamadı, lütfen tekrar deneyin.');
+            if (peerConnection) { // Eğer eşleşme bulunamadıysa bağlantıyı kapat
+                closePeerConnection();
+                remoteVideo.srcObject = null;
+            }
+        });
+
+        // Kalp animasyonu alıcı
+        socket.on('receiveLike', () => {
+            console.log('Kalp alındı!');
+            showLikeAnimation();
+        });
+
+    } catch (e) {
+        console.error('Medya akışına erişilemedi:', e);
+        alert('Kamera ve mikrofon erişimi gerekli! Lütfen izin verin.');
+    }
+}
+
+// PeerConnection oluşturma ve olay dinleyicilerini ayarlama
+function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(iceServers);
+
+    // Kendi medya akışımızı PeerConnection'a ekliyoruz
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    // Karşı taraftan gelen medya akışını dinleme
+    peerConnection.ontrack = (event) => {
+        if (remoteVideo.srcObject !== event.streams[0]) {
+            remoteVideo.srcObject = event.streams[0];
+            remoteStream = event.streams[0];
+            console.log('Uzak video akışı eklendi.');
+        }
+    };
+
+    // ICE adayları oluşturulduğunda sunucuya gönderme
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate && remotePeerId) { // Sadece geçerli aday ve eşleşilen kişi varsa gönder
+            console.log('ICE adayı gönderiliyor:', event.candidate); // BU SATIRI AKTİF ETTİK
+            socket.emit('candidate', {
+                to: remotePeerId, // Karşı tarafın socket ID'si
+                candidate: event.candidate,
+            });
+        }
+    };
+
+    // Bağlantı durumu değiştiğinde
+    peerConnection.onconnectionstatechange = (event) => {
+        console.log('PeerConnection durumu:', peerConnection.connectionState);
+        if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+            console.log('Bağlantı koptu veya başarısız oldu.');
+            closePeerConnection();
+            remoteVideo.srcObject = null;
+        } else if (peerConnection.connectionState === 'connected') {
+            console.log('Bağlantı başarıyla kuruldu!');
+        }
+    };
+}
+
+// PeerConnection'ı kapatma fonksiyonu
+function closePeerConnection() {
+    if (peerConnection) {
+        console.log('PeerConnection kapatılıyor.');
+        peerConnection.ontrack = null;
+        peerConnection.onicecandidate = null;
+        peerConnection.onconnectionstatechange = null;
+        peerConnection.close();
+        peerConnection = null;
+        remotePeerId = null; // Bağlantı kesilince uzak ID'yi sıfırla
+    }
+    // Remote videoyu da sıfırlayalım
+    remoteVideo.srcObject = null;
+}
+
+// Tuş olay dinleyicileri
+
+// Yeni Eşleşme Bul tuşu
+findMatchBtn.addEventListener('click', async () => {
+    // ÖNEMLİ DÜZELTME: socket bağlantısının açık olduğunu kontrol et
+    if (!socket || !socket.connected) {
+        console.error('Socket.IO bağlantısı henüz kurulmadı veya koptu. Lütfen bekleyin veya sayfayı yenileyin.');
+        alert('Sunucuya bağlanılamadı. Lütfen birkaç saniye bekleyin ve tekrar deneyin veya sayfayı yenileyin.');
+        return; // Bağlantı yoksa işlemi durdur
+    }
+
+    // Mevcut bağlantıyı kapat
+    if (peerConnection) {
+        closePeerConnection();
+        remoteVideo.srcObject = null;
+    }
+
+    console.log('Yeni eşleşme aranıyor...');
+    socket.emit('findMatch'); // Sunucuya eşleşme talebi gönder
+});
+
+// Like Yollama tuşu
+sendLikeBtn.addEventListener('click', () => {
+    // ÖNEMLİ DÜZELTME: socket bağlantısının açık olduğunu kontrol et
+    if (!socket || !socket.connected) {
+        console.error('Socket.IO bağlantısı henüz kurulmadı veya koptu. Kalp yollanamaz.');
+        alert('Sunucuya bağlanılamadı, kalp yollanamaz. Lütfen bekleyin veya sayfayı yenileyin.');
+        return; // Bağlantı yoksa işlemi durdur
+    }
+
+    if (remotePeerId) { // Sadece eşleşme varsa kalp yolla
+        socket.emit('sendLike', { to: remotePeerId });
+        showLikeAnimation(); // Kendi ekranımızda da animasyonu göster
+    } else {
+        alert('Eşleşme yok, kalp yollanamaz.');
+    }
+});
+
+// Kalp animasyonunu gösterme fonksiyonu
+function showLikeAnimation() {
+    likeAnimation.style.animation = 'none'; // Animasyonu sıfırla
+    likeAnimation.offsetHeight; // Reflow'u tetikle (animasyonu yeniden başlatmak için gerekli)
+    likeAnimation.style.animation = 'likePop 1.5s forwards'; // Animasyonu başlat
+}
+
+// Eşleşmeden Ayrıl tuşu
+disconnectBtn.addEventListener('click', () => {
+    if (socket && remotePeerId) {
+        socket.emit('disconnectMatch', { to: remotePeerId });
+        console.log('Eşleşmeden ayrılma talebi gönderildi.');
+    }
+    closePeerConnection();
+    remoteVideo.srcObject = null;
+    alert('Eşleşmeden ayrıldınız.');
+});
+
+// Sayfa yüklendiğinde başlat
+init();
