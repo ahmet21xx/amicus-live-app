@@ -60,7 +60,7 @@ async function init() {
 
         // Socket.IO bağlantısını başlat
         // BURAYA KENDİ RENDER.COM URL'NİZİ YAPIŞTIRACAKSINIZ
-        // Örnek: socket = io('https://amicus-live-app.onrender.com/');
+        // Örnek: socket = io('https://amicus-backend.onrender.com/');
         socket = io('https://amicus-backend.onrender.com'); // Şimdilik yerel adres, dağıtımda değişecek
 
         // Sunucudan gelen mesajları dinleme
