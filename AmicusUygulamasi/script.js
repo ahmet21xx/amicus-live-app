@@ -13,29 +13,33 @@ let peerConnection;
 let socket; // Socket.IO bağlantısı için
 
 // Güncellenmiş STUN/TURN sunucuları
-// TURN sunucusu, doğrudan bağlantı kurulamadığında medya trafiğini yönlendirir.
 const iceServers = {
     iceServers: [
-        // Google'ın genel STUN sunucuları (genellikle yeterlidir)
+        // Google'ın genel STUN sunucuları
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
 
-        // Alternatif ücretsiz TURN sunucusu (test amaçlı, dikkatli kullanın)
-        // Bu hizmetler değişebilir veya limitli olabilir.
-        // Kendi ücretli TURN sunucunuzu veya deneme anahtarınızı kullanmak en iyisidir.
+        // Google'ın AppRTC için kullandığı test TURN sunucuları (Lütfen sadece TEST amaçlı kullanın!)
+        // Bu sunucular genellikle daha güvenilirdir ancak üretim için önerilmez.
+        // Bu URL'ler ve kimlik bilgileri zaman zaman değişebilir.
         {
-            urls: 'turn:global.relay.metered.ca:443?transport=tcp', // Farklı bir metered adresi
-            username: 'YOUR_API_KEY_HERE', // Eğer metered.ca'dan ücretsiz deneme aldıysan, buraya API anahtarını yapıştır.
-            credential: 'YOUR_API_SECRET_HERE' // Eğer metered.ca'dan ücretsiz deneme aldıysan, buraya API sırrını yapıştır.
+            urls: 'turn:54.145.228.163:3478?transport=tcp', // Güncel AppRTC TURN sunucusu IP'si
+            username: 'webrtc',
+            credential: 'webrtc'
         },
-        // Eğer yukarıdaki metered TURN sunucusu sorun çıkarırsa, aşağıdaki test sunucusunu deneyebiliriz:
+        {
+            urls: 'turn:35.170.252.190:3478?transport=tcp', // Güncel AppRTC TURN sunucusu IP'si
+            username: 'webrtc',
+            credential: 'webrtc'
+        },
+         // Daha önce kullandığımız Metered sunucuları (Yorum satırı olarak bırakabiliriz, veya kaldırabiliriz)
         // {
-        //     urls: 'turn:numb.viagenie.ca',
-        //     username: 'testuser',
-        //     credential: 'testpassword'
+        //     urls: "turn:global.relay.metered.ca:443?transport=tcp",
+        //     username: "YOUR_API_KEY_HERE",
+        //     credential: "YOUR_API_SECRET_HERE"
         // }
     ],
 };
