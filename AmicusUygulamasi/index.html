@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMİCUS - Canlı Görüntülü Sohbet</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">AMİCUS</div>
+    </header>
+    
+    <main class="container">
+        <div class="video-container">
+            <video id="localVideo" autoplay muted></video>
+            <video id="remoteVideo" autoplay></video>
+        </div>
+
+        <div class="controls">
+            <button id="findMatchBtn" class="control-button">Yeni Eşleşme Bul</button>
+            <button id="sendLikeBtn" class="control-button">❤️</button>
+            <button id="disconnectBtn" class="control-button">Eşleşmeden Ayrıl</button>
+        </div>
+
+        <div id="likeAnimation" class="like-animation">
+            ❤️<br><span>bebekamın</span>
+        </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script> <script src="script.js"></script>
+</body>
+</html>

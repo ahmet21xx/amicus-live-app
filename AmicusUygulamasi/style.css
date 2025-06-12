@@ -1,0 +1,146 @@
+:root {
+    --amicus-orange-light: #FF8C00; /* Açık turuncu */
+    --amicus-blue-ice: #B0E0E6;   /* Buz mavisi */
+    --button-orange-fire: #FF4500; /* Ateş rengi turuncu */
+    --text-color: #333;
+    --bg-color: #f0f2f5;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar ve Logo */
+.navbar {
+    background: linear-gradient(to right, var(--amicus-orange-light), var(--amicus-blue-ice));
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Logoyu sola hizala */
+}
+
+.logo {
+    font-size: 2.5em; /* Daha büyük logo */
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+}
+
+/* Ana İçerik Alanı */
+.container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Video Konteyneri */
+.video-container {
+    display: flex;
+    gap: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 15px;
+    width: 100%;
+    max-width: 900px; /* Video alanını daha geniş yap */
+    height: 450px; /* Video alanının yüksekliği */
+    justify-content: center;
+    align-items: center;
+}
+
+.video-container video {
+    width: 48%; /* İki video yan yana */
+    height: 100%;
+    background-color: #eee;
+    border-radius: 8px;
+    object-fit: cover; /* Videoyu orantılı bir şekilde sığdır */
+    border: 1px solid #ddd;
+}
+
+/* Kontrol Tuşları */
+.controls {
+    display: flex;
+    gap: 20px; /* Tuşlar arası boşluk */
+    margin-top: 20px;
+}
+
+.control-button {
+    background-color: var(--button-orange-fire);
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 30px; /* Daha yuvarlak tuşlar */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.3);
+}
+
+.control-button:hover {
+    background-color: #FF6347; /* Hover rengi biraz daha açık */
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 69, 0, 0.4);
+}
+
+.control-button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(255, 69, 0, 0.2);
+}
+
+/* Kalp Animasyonu */
+.like-animation {
+    position: fixed; /* Sabit konum */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0); /* Başlangıçta görünmez ve küçük */
+    font-size: 8em; /* Büyük kalp */
+    color: #FF6347; /* Ateş rengi */
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none; /* Üzerine tıklanamaz olsun */
+    animation: none; /* Başlangıçta animasyon yok */
+    z-index: 1000;
+}
+
+.like-animation span {
+    display: block; /* Bebekamın alt satırda */
+    font-size: 0.3em; /* Daha küçük yazı */
+    color: #FF6347;
+    margin-top: -15px; /* Kalbe yakınlaştırma */
+}
+
+/* Kalp Animasyon Keyframes */
+@keyframes likePop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    20% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    80% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+}
